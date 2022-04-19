@@ -8,67 +8,96 @@ import java.awt.Graphics;
 import javax.swing.JPanel;
 
 public class Drawer extends JPanel implements ICollider, KeyListener, Actions {
-    private static final long serialVersionUID = -2951430038089172773L;
+  private static final long serialVersionUID = -2951430038089172773L;
 
-    public static final int WIDTH = 32, HEIGHT = 16;
+  public static final int WIDTH = 32, HEIGHT = 21;
 
-    Snake snake = new Snake();
-    Food food = new Food();
+  Character[][] drawerState = new Character[HEIGHT][WIDTH];
+  Snake snake;
+  Food food;
 
-    Drawer() {
+  Drawer() {
+    setIgnoreRepaint(true);
+
+    cleanDrawer();
+    snake = new Snake(drawerState);
+    food = new Food(snake);
+
+    snake.findPath(food.point);
+
+  }
+
+  boolean a = true;
+
+  @Override
+  public void paint(Graphics g) {
+    // super.paint(g);
+    g.setColor(Color.BLACK);
+    g.fillRect(0, 0, WIDTH * 100, HEIGHT * 100);
+
+    if (App.IA) {
+      if (!snake.path.isEmpty()) {
+        Node action = snake.path.pop();
+        snake.changeAction(action.action);
+        for (Node node : snake.path)
+          drawerState[node.p.col][node.p.row] = 'P';
+      } else
+        snake.findPath(food.point);
     }
 
-    @Override
-    public void paint(Graphics g) {
-        super.paint(g);
-        g.setColor(Color.BLACK);
-        g.fillRect(0, 0, WIDTH * 100, HEIGHT * 100);
-        /*if (snake.head.location.x >= WIDTH || snake.head.location.x <= 0 || snake.head.location.y <= 0
-                || snake.head.location.y >= HEIGHT) {
-
-        } else */if (snake.head.location.x == food.point.x && snake.head.location.y == food.point.y) {
-            snake.eat();
-            food.generateNewFoodCoord();
-        } else if (snake.isCanibal()) {
-        }
-
-        snake.move();
-        g.setColor(Color.WHITE);
-        for (Body b : snake.body) {
-            System.out.println("Printing snake: "+ b.location);
-            g.fillRect(b.location.x * 10, b.location.y * 10, 10, 10);
-        }
-        g.setColor(Color.RED);
-        g.fillRect(food.point.x * 10, food.point.y * 10, 10, 10);
-        System.out.println("Painting");
+    if (snake.head.location.row == food.point.row && snake.head.location.col == food.point.col
+        || (food.point.row == -1 && food.point.col == -1)) {
+      snake.eat();
+      food.generateNewFoodCoord();
+      snake.findPath(food.point);
     }
 
-    @Override
-    public void keyPressed(KeyEvent evt) {
-        int code = evt.getKeyCode();
-        System.out.println("Move to: " + code);
-        switch (code) {
-            case KeyEvent.VK_DOWN:
-                snake.changeAction(UP);
-                break;
-            case KeyEvent.VK_LEFT:
-                snake.changeAction(LEFT);
-                break;
-            case KeyEvent.VK_UP:
-                snake.changeAction(DOWN);
-                break;
-            case KeyEvent.VK_RIGHT:
-                snake.changeAction(RIGHT);
-                break;
-        }
-    }
+    snake.move();
 
-    @Override
-    public void keyReleased(KeyEvent arg0) {
-    }
+    snake.printPath(g);
+    snake.print(g);
+    food.print(g);
 
-    @Override
-    public void keyTyped(KeyEvent arg0) {
+    // if (!snake.isAlive)
+    // System.exit(0);
+
+    cleanDrawer();
+  }
+
+  void cleanDrawer() {
+    for (int i = 0; i < WIDTH; i++)
+      for (int j = 0; j < HEIGHT; j++)
+        drawerState[j][i] = 'E';
+  }
+
+  @Override
+  public void keyPressed(KeyEvent evt) {
+    if (App.IA)
+      return;
+    int code = evt.getKeyCode();
+    Logger.log("Move to: " + code);
+    switch (code) {
+      case KeyEvent.VK_DOWN:
+        snake.changeAction(UP);
+        break;
+      case KeyEvent.VK_LEFT:
+        snake.changeAction(LEFT);
+        break;
+      case KeyEvent.VK_UP:
+        snake.changeAction(DOWN);
+        break;
+      case KeyEvent.VK_RIGHT:
+        snake.changeAction(RIGHT);
+        break;
     }
+  }
+
+  @Override
+  public void keyReleased(KeyEvent arg0) {
+  }
+
+  @Override
+  public void keyTyped(KeyEvent arg0) {
+  }
 
 }
