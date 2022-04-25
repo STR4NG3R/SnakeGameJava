@@ -15,7 +15,7 @@ public class Drawer extends JPanel implements ICollider, KeyListener, Actions {
   Food food;
 
   Drawer() {
-    // setIgnoreRepaint(true);
+    setIgnoreRepaint(true);
 
     cleanDrawer();
     food = new Food();
@@ -53,6 +53,10 @@ public class Drawer extends JPanel implements ICollider, KeyListener, Actions {
     for (int i = 0; i < WIDTH; i++)
       for (int j = 0; j < HEIGHT; j++)
         drawerState[j][i] = 'E';
+  }
+
+  boolean itsOutsideMap(int row, int col) {
+    return !(((col >= 0) && (col < Drawer.WIDTH)) && ((row >= 0) && (row < Drawer.HEIGHT)));
   }
 
   @Override

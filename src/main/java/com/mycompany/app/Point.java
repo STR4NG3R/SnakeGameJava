@@ -15,4 +15,10 @@ public class Point {
   public String toString() {
     return "Point [x=" + row + ", y=" + col + "]";
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    var point = (Point) obj;
+    return row == point.row && col == point.col;
+  }
 }

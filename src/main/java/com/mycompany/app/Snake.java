@@ -13,6 +13,7 @@ public class Snake implements Actions, ICollider {
   Food food;
 
   public Snake(Drawer _drawer, Food food, int initSize) {
+    this.food = food;
     drawer = _drawer;
     head = new Body();
     head.action = App.IA ? DOWN : 'Z';
@@ -31,13 +32,13 @@ public class Snake implements Actions, ICollider {
   }
 
   public void isEating() {
-    if (food.point.row != head.location.row && food.point.col != head.location.col)
-      return;
-    Body tail = body.get(body.size() - 1);
-    Body b = new Body(tail.action, new Point(tail.location.row, tail.location.col));
-    body.add(b);
-    food.generateNewFoodCoord();
-    findPath(food.point);
+    if (head.location.equals(food.point)) {
+      Body tail = body.get(body.size() - 1);
+      Body b = new Body(tail.action, new Point(tail.location.row, tail.location.col));
+      body.add(b);
+      food.generateNewFoodCoord();
+      findPath(food.point);
+    }
   }
 
   public void movePiece(Body current, Body next) {
@@ -95,7 +96,7 @@ public class Snake implements Actions, ICollider {
 
   private boolean itsOutsideMap() {
     int row = head.location.row, col = head.location.col;
-    return !(((col >= 0) && (col < Drawer.WIDTH)) && ((row >= 0) && (row < Drawer.HEIGHT)));
+    return drawer.itsOutsideMap(row, col);
   }
 
   public void print(Graphics g) {
@@ -105,7 +106,7 @@ public class Snake implements Actions, ICollider {
   }
 
   public boolean isEatingBody() {
-    return body.contains(head);
+    return body.stream().filter(b -> b.equals(head)).count() == 2;
   }
 
   public void die() {
@@ -114,7 +115,7 @@ public class Snake implements Actions, ICollider {
   }
 
   public void findPath(Point food) {
-    if (food.col == -1)
+    if (food.col == -1 && food.row == -1)
       return;
     astar.findPath(head.location, food);
     for (Node node : astar.path)

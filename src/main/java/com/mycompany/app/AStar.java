@@ -22,7 +22,7 @@ public class AStar implements Actions {
       PriorityQueue<Node> openSet, HashMap<String, Node> closedSet, Node endNode) {
     int col = x + rx, row = y + ry;
 
-    if (!(((col >= 0) && (col < Drawer.WIDTH)) && ((row >= 0) && (row < Drawer.HEIGHT))))
+    if (snake.drawer.itsOutsideMap(row, col))
       return;
 
     if (drawerState[row][col] == 'S')
