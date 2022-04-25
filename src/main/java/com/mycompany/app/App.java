@@ -22,11 +22,14 @@ public class App extends JFrame {
     add(d);
     setVisible(true);
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
     timer.addActionListener(e -> {
-      if (!this.isVisible())
-        timer.stop();
-      d.repaint();
+      // if (!this.isVisible())
+      // timer.stop();
+      if (RUNNING)
+        d.repaint();
     });
+
     timer.start();
   }
 

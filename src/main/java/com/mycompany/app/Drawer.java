@@ -8,8 +8,6 @@ import java.awt.Graphics;
 import javax.swing.JPanel;
 
 public class Drawer extends JPanel implements ICollider, KeyListener, Actions {
-  private static final long serialVersionUID = -2951430038089172773L;
-
   public static final int WIDTH = 32, HEIGHT = 21;
 
   Character[][] drawerState = new Character[HEIGHT][WIDTH];
@@ -17,39 +15,27 @@ public class Drawer extends JPanel implements ICollider, KeyListener, Actions {
   Food food;
 
   Drawer() {
-    setIgnoreRepaint(true);
+    // setIgnoreRepaint(true);
 
     cleanDrawer();
-    snake = new Snake(drawerState);
-    food = new Food(snake);
+    food = new Food();
+    snake = new Snake(this, food, 3);
 
-    snake.findPath(food.point);
-
+    food.setSnake(snake);
+    food.generateNewFoodCoord();
   }
-
-  boolean a = true;
 
   @Override
   public void paint(Graphics g) {
-    // super.paint(g);
     g.setColor(Color.BLACK);
     g.fillRect(0, 0, WIDTH * 100, HEIGHT * 100);
 
     if (App.IA) {
-      if (!snake.path.isEmpty()) {
-        Node action = snake.path.pop();
+      if (!snake.astar.path.isEmpty()) {
+        Node action = snake.astar.path.pop();
         snake.changeAction(action.action);
-        for (Node node : snake.path)
-          drawerState[node.p.col][node.p.row] = 'P';
       } else
         snake.findPath(food.point);
-    }
-
-    if (snake.head.location.row == food.point.row && snake.head.location.col == food.point.col
-        || (food.point.row == -1 && food.point.col == -1)) {
-      snake.eat();
-      food.generateNewFoodCoord();
-      snake.findPath(food.point);
     }
 
     snake.move();
@@ -60,7 +46,6 @@ public class Drawer extends JPanel implements ICollider, KeyListener, Actions {
 
     // if (!snake.isAlive)
     // System.exit(0);
-
     cleanDrawer();
   }
 
@@ -79,7 +64,6 @@ public class Drawer extends JPanel implements ICollider, KeyListener, Actions {
     switch (code) {
       case KeyEvent.VK_DOWN:
         snake.changeAction(UP);
-        break;
       case KeyEvent.VK_LEFT:
         snake.changeAction(LEFT);
         break;
@@ -100,4 +84,14 @@ public class Drawer extends JPanel implements ICollider, KeyListener, Actions {
   public void keyTyped(KeyEvent arg0) {
   }
 
+  public void printDrawer() {
+    System.out.println("---------------------Drawer----------------------");
+    for (int i = 0; i < drawerState.length; i++) {
+      for (int j = 0; j < drawerState[0].length; j++) {
+        System.out.print(drawerState[i][j] + " ");
+      }
+      System.out.println();
+    }
+    System.out.println("END---------------------Drawer----------------------END");
+  }
 }

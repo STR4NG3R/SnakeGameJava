@@ -5,16 +5,18 @@ import java.awt.Graphics;
 
 public class Food {
   public Point point = new Point();
-  private Snake snake;
+  Snake snake;
 
-  Food(Snake _snake) {
-    snake = _snake;
-    generateNewFoodCoord();
+  public void setSnake(Snake snake) {
+    this.snake = snake;
+  }
+
+  Food() {
   }
 
   public void print(Graphics g) {
     g.setColor(Color.RED);
-    g.fillRect(point.row * 10, point.col * 10, 10, 10);
+    g.fillOval(point.row * 10, point.col * 10, 11, 11);
   }
 
   int generateRandomCoord(int upperNumber) {
@@ -23,20 +25,12 @@ public class Food {
 
   public void generateNewFoodCoord() {
     int row = generateRandomCoord(10), col = generateRandomCoord(10);
-    boolean isSnake = snake.drawer[row][col] == 'S';
+    boolean isSnake = snake.drawer.drawerState[row][col] == 'S';
     if (isSnake) {
       point.row = point.col = -1;
     } else {
       point.row = col;
       point.col = row;
-    }
-
-  }
-
-  public void generateNewFoodCoord(Graphics g) {
-    this.generateNewFoodCoord();
-    if (point.row != -1 && point.col != -1) {
-      snake.findPath(point);
     }
   }
 }

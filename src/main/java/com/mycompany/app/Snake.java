@@ -3,101 +3,99 @@ package com.mycompany.app;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Stack;
 
 public class Snake implements Actions, ICollider {
   Body head;
   ArrayList<Body> body = new ArrayList<>();
-  Character[][] drawer;
+  Drawer drawer;
   boolean isAlive;
   AStar astar;
-  Stack<Node> path;
+  Food food;
 
-  public Snake(Character[][] _drawer) {
+  public Snake(Drawer _drawer, Food food, int initSize) {
     drawer = _drawer;
     head = new Body();
     head.action = App.IA ? DOWN : 'Z';
     head.location.row = Drawer.WIDTH / 2;
     head.location.col = Drawer.HEIGHT / 2;
     body.add(head);
+
+    for (int i = 0; i < initSize; i++) {
+      var piece = new Body(head.action, new Point(head.location.row,
+          head.location.col - 1));
+      body.add(piece);
+    }
+
     isAlive = true;
-    astar = new AStar(_drawer, this);
+    astar = new AStar(drawer.drawerState, this);
   }
 
-  public void eat() {
+  public void isEating() {
+    if (food.point.row != head.location.row && food.point.col != head.location.col)
+      return;
     Body tail = body.get(body.size() - 1);
     Body b = new Body(tail.action, new Point(tail.location.row, tail.location.col));
     body.add(b);
+    food.generateNewFoodCoord();
+    findPath(food.point);
   }
 
   public void movePiece(Body current, Body next) {
-    drawer[next.location.col][next.location.row] = 'S';
+    drawer.drawerState[next.location.col][next.location.row] = 'S';
     current.location.row = next.location.row;
     current.location.col = next.location.col;
   }
 
-  void moveCoords(Body current, int a) {
+  void moveCoords(Body current) {
     if (current.action == DOWN)
-      current.location.col -= a;
+      current.location.col -= 1;
     else if (current.action == UP)
-      current.location.col += a;
+      current.location.col += 1;
     else if (current.action == LEFT)
-      current.location.row -= a;
+      current.location.row -= 1;
     else if (current.action == RIGHT)
-      current.location.row += a;
+      current.location.row += 1;
   }
 
-  public void movePiece(Body current) {
-    moveCoords(current, 1);
-    // Rollback
-    if (itsOutsideMap())
-      moveCoords(head, -1);
-    drawer[current.location.col][current.location.row] = 'S';
+  public void moveHead() {
+    moveCoords(head);
+    if (itsOutsideMap() || isEatingBody()) {
+      die();
+      return;
+    }
+    isEating();
+    drawer.drawerState[head.location.col][head.location.row] = 'S';
   }
 
   public void changeAction(char action) {
-    if (!isInvalidMove(action)) {
-      System.out.println("VALID MOVE");
+    if (!isInvalidMove(action))
       head.action = action;
-    } else
-      System.out.println(
-          "***********************************************INVALID MOVE**********************************************");
   }
 
   public boolean isInvalidMove(int action) {
-    return head.action == UP && action == DOWN || head.action == LEFT && action == RIGHT
+    boolean valid = head.action == UP && action == DOWN || head.action == LEFT && action == RIGHT
         || head.action == RIGHT && action == LEFT || head.action == DOWN && action == UP;
+    if (!valid)
+      System.out.println("-------------------INVALID MOVE--------------");
+    return valid;
   }
 
   public void move() {
     if (head.action == 'Z')
       return;
+
     for (int i = body.size(); i-- > 1;) {
       Body next = body.get(i - 1);
       movePiece(body.get(i), next);
     }
 
-    // isEatingBody();
-
-    movePiece(head);
-
-    System.out.println("---------------------Drawer----------------------");
-    for (int i = 0; i < drawer.length; i++) {
-      for (int j = 0; j < drawer[0].length; j++) {
-        System.out.print(drawer[i][j] + " ");
-      }
-      System.out.println();
-    }
-    System.out.println("END---------------------Drawer----------------------END");
+    moveHead();
+    drawer.printDrawer();
   }
 
   private boolean itsOutsideMap() {
     int row = head.location.row, col = head.location.col;
-    if (!(((col >= 0) && (col < Drawer.WIDTH)) && ((row >= 0) && (row < Drawer.HEIGHT))))
-      return true;
-    return false;
-    // die();
+    return !(((col >= 0) && (col < Drawer.WIDTH)) && ((row >= 0) && (row < Drawer.HEIGHT)));
   }
 
   public void print(Graphics g) {
@@ -106,31 +104,28 @@ public class Snake implements Actions, ICollider {
       g.fillRect(b.location.row * 10, b.location.col * 10, 10, 10);
   }
 
-  public void isEatingBody() {
-    for (int i = 1; i < body.size(); i++) {
-      Body pieceOfBody = body.get(i);
-      int x = pieceOfBody.location.row;
-      int y = pieceOfBody.location.col;
-      if (head.location.row == x && head.location.col == y) {
-        die();
-      }
-    }
+  public boolean isEatingBody() {
+    return body.contains(head);
   }
 
   public void die() {
-    App.RUNNING = false;
-    isAlive = false;
+    System.out.println("-----------------SNAKE DIE--------------------");
+    // App.RUNNING = false;
   }
 
   public void findPath(Point food) {
-    if (food.col != -1)
-      path = astar.findPath(head.location, food);
-    System.out.println("Calculated path" + path.size());
+    if (food.col == -1)
+      return;
+    astar.findPath(head.location, food);
+    for (Node node : astar.path)
+      drawer.drawerState[node.p.col][node.p.row] = 'P';
+    System.out.println("Calculated path" + astar.path.size());
   }
 
   public void printPath(Graphics g) {
+    System.out.println("-----------------CURRENT ACTION SNAKE-----------------");
     g.setColor(Color.YELLOW);
-    for (Iterator<Node> it = path.iterator(); it.hasNext();) {
+    for (var it = astar.path.iterator(); it.hasNext();) {
       Node b = it.next();
       System.out.println(b);
       g.fillRect(b.p.row * 10, b.p.col * 10, 10, 10);

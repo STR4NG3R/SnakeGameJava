@@ -10,10 +10,12 @@ public class AStar implements Actions {
   final int MAX_NUMBER_ITERATIONS = Drawer.WIDTH * Drawer.HEIGHT;
   Character[][] drawerState;
   Snake snake;
+  Stack<Node> path;
 
   AStar(Character[][] _drawerState, Snake snake) {
     drawerState = _drawerState;
     this.snake = snake;
+    path = new Stack<Node>();
   }
 
   void lookAtDirection(int x, int y, int rx, int ry, char action, Node parent,
@@ -22,8 +24,6 @@ public class AStar implements Actions {
 
     if (!(((col >= 0) && (col < Drawer.WIDTH)) && ((row >= 0) && (row < Drawer.HEIGHT))))
       return;
-
-    System.out.println(drawerState[row][col]);
 
     if (drawerState[row][col] == 'S')
       return;
@@ -50,8 +50,8 @@ public class AStar implements Actions {
       PriorityQueue<Node> openSet, Node endNode) {
     lookAtDirection(p.row, p.col, 1, 0, RIGHT, parent, openSet, closedSet, endNode);
     lookAtDirection(p.row, p.col, -1, 0, LEFT, parent, openSet, closedSet, endNode);
-    lookAtDirection(p.row, p.col, 0, -1, DOWN, parent, openSet, closedSet, endNode);
     lookAtDirection(p.row, p.col, 0, 1, UP, parent, openSet, closedSet, endNode);
+    lookAtDirection(p.row, p.col, 0, -1, DOWN, parent, openSet, closedSet, endNode);
   }
 
   int calculateDistance(Point startNode, Point endNode) {
@@ -61,16 +61,16 @@ public class AStar implements Actions {
   }
 
   Stack<Node> findPath(Point start, Point end) {
-    Stack<Node> path = new Stack<Node>();
-    HashMap<String, Node> closedSet = new HashMap<String, Node>();
-    PriorityQueue<Node> openSet = new PriorityQueue<Node>((Node n1, Node n2) -> n1.f - n2.f);
+    path.clear();
+    var closedSet = new HashMap<String, Node>();
+    var openSet = new PriorityQueue<Node>((Node n1, Node n2) -> n1.f - n2.f);
 
-    Node startNode = new Node(start, null);
-    Node endNode = new Node(end, null);
+    var startNode = new Node(start, null);
+    var endNode = new Node(end, null);
     depth = 0;
     openSet.add(startNode);
 
-    while (!openSet.isEmpty() && depth++ < MAX_NUMBER_ITERATIONS) {
+    while (!openSet.isEmpty() && ++depth < MAX_NUMBER_ITERATIONS) {
       Node currentNode = openSet.poll();
       closedSet.put(currentNode.p.row + "-" + currentNode.p.col, currentNode);
 

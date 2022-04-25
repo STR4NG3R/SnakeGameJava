@@ -23,6 +23,8 @@ public class Node {
 
   @Override
   public String toString() {
-    return p.toString() + "\nG: " + g + "\nH: " + h + "\nF: " + f + "\nACTION: " + action;
+    var breakLine = "=========================================\n";
+    return breakLine + p.toString() + "\nG: " + g + "\nH: " + h + "\nF: " + f + "\nACTION: " + action + '\n'
+        + breakLine;
   }
 }
