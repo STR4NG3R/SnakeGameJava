@@ -1,0 +1,6 @@
+com/mycompany/app/Logger.class
+com/mycompany/app/Node.class
+com/mycompany/app/Actions.class
+com/mycompany/app/Body.class
+com/mycompany/app/Point.class
+com/mycompany/app/ICollider.class
