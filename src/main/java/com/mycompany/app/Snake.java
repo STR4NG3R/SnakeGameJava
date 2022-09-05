@@ -55,7 +55,7 @@ public class Snake implements Actions, ICollider, Cloneable {
   }
 
   public void movePiece(Body current) {
-    drawer.drawerState[head.location.row][head.location.col] = 'S';
+    drawer.drawerState[current.location.row][current.location.col] = 'S';
   }
 
   public boolean moveHead() {
@@ -117,15 +117,17 @@ public class Snake implements Actions, ICollider, Cloneable {
   public void findPath(Point food) {
     if (food.col == -1 && food.row == -1)
       return;
-
-    System.out.println("FOOT COORDS " + food);
     System.out.println("FIND FOOD");
-    astar.findPath(head.location, food, true);
-    if (!astar.finded) {
-      System.out.println("FIND TAIL");
-      astar.findPath(head.location, body.get(body.size() - 1).location, false);
-    }
-    if (!astar.findShortPath)
+    astar.findPath(head.location, food, true, false, this);
+    if (!astar.finded)
+      for (int i = body.size() - 1; i-- > 1;) {
+        System.out.println("FIND TAIL");
+        astar.findPath(head.location, body.get(i).location, false, true, this);
+        if (astar.finded)
+          break;
+      }
+
+    if (!astar.finded)
       System.out.println("NOT FINDED");
   }
 

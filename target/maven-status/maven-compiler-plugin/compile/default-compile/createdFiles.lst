@@ -1,6 +1,12 @@
+com/mycompany/app/AStar.class
 com/mycompany/app/Logger.class
 com/mycompany/app/Node.class
+com/mycompany/app/Food.class
+com/mycompany/app/App.class
+com/mycompany/app/DtoConsumer.class
+com/mycompany/app/Drawer.class
 com/mycompany/app/Actions.class
 com/mycompany/app/Body.class
+com/mycompany/app/Snake.class
 com/mycompany/app/Point.class
 com/mycompany/app/ICollider.class
