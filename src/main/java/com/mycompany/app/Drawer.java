@@ -7,10 +7,10 @@ import java.awt.Graphics;
 
 import javax.swing.JPanel;
 
-public class Drawer extends JPanel implements ICollider, KeyListener, Actions {
-  public static final int WIDTH = 32, HEIGHT = 21;
+public class Drawer extends JPanel implements ICollider, KeyListener, Actions, Cloneable {
+  public static final int COLS_N = 32, ROWS_N = 21;
 
-  Character[][] drawerState = new Character[HEIGHT][WIDTH];
+  Character[][] drawerState = new Character[ROWS_N][COLS_N];
   Snake snake;
   Food food;
 
@@ -22,41 +22,49 @@ public class Drawer extends JPanel implements ICollider, KeyListener, Actions {
     snake = new Snake(this, food, 3);
 
     food.setSnake(snake);
-    food.generateNewFoodCoord();
+    food.generateNewFoodCoord(this);
   }
 
   @Override
   public void paint(Graphics g) {
     g.setColor(Color.BLACK);
-    g.fillRect(0, 0, WIDTH * 100, HEIGHT * 100);
+    g.fillRect(0, 0, COLS_N * 100, ROWS_N * 100);
 
     if (App.IA) {
       if (!snake.astar.path.isEmpty()) {
         Node action = snake.astar.path.pop();
         snake.changeAction(action.action);
-      } else
+      } else {
+        snake.changeAction('Z');
         snake.findPath(food.point);
+      }
     }
 
     snake.move();
-
     snake.printPath(g);
     snake.print(g);
     food.print(g);
-
-    // if (!snake.isAlive)
-    // System.exit(0);
-    cleanDrawer();
   }
 
   void cleanDrawer() {
-    for (int i = 0; i < WIDTH; i++)
-      for (int j = 0; j < HEIGHT; j++)
-        drawerState[j][i] = 'E';
+    for (int i = 0; i < ROWS_N; i++)
+      for (int j = 0; j < COLS_N; j++)
+        drawerState[i][j] = 'E';
+  }
+
+  void checkIfNotInMap(int row, int col) {
+    if (col < 0)
+      snake.head.location.col = Drawer.COLS_N - 1;
+    else if (col >= Drawer.COLS_N)
+      snake.head.location.col = 0;
+    else if (row < 0)
+      snake.head.location.row = Drawer.ROWS_N - 1;
+    else if (row >= Drawer.ROWS_N)
+      snake.head.location.row = 0;
   }
 
   boolean itsOutsideMap(int row, int col) {
-    return !(((col >= 0) && (col < Drawer.WIDTH)) && ((row >= 0) && (row < Drawer.HEIGHT)));
+    return (col < 0 || col >= Drawer.COLS_N) || (row < 0 || row >= Drawer.ROWS_N);
   }
 
   @Override
@@ -64,10 +72,10 @@ public class Drawer extends JPanel implements ICollider, KeyListener, Actions {
     if (App.IA)
       return;
     int code = evt.getKeyCode();
-    Logger.log("Move to: " + code);
     switch (code) {
       case KeyEvent.VK_DOWN:
         snake.changeAction(UP);
+        break;
       case KeyEvent.VK_LEFT:
         snake.changeAction(LEFT);
         break;
@@ -89,13 +97,24 @@ public class Drawer extends JPanel implements ICollider, KeyListener, Actions {
   }
 
   public void printDrawer() {
-    System.out.println("---------------------Drawer----------------------");
-    for (int i = 0; i < drawerState.length; i++) {
-      for (int j = 0; j < drawerState[0].length; j++) {
-        System.out.print(drawerState[i][j] + " ");
-      }
-      System.out.println();
-    }
-    System.out.println("END---------------------Drawer----------------------END");
+    // System.out.println("---------------------Drawer----------------------");
+    // for (int i = 0; i < HEIGHT; i++) {
+    // for (int j = 0; j < WIDTH; j++)
+    // System.out.print(drawerState[i][j] + " ");
+    // System.out.println();
+    // }
+    // System.out.println("END---------------------Drawer----------------------END");
+  }
+
+  @Override
+  protected Object clone() throws CloneNotSupportedException {
+    var d = (Drawer) super.clone();
+    d.drawerState = new Character[ROWS_N][COLS_N];
+
+    for (int i = 0; i < ROWS_N; i++)
+      for (int j = 0; j < COLS_N; j++)
+        d.drawerState[i][j] = drawerState[i][j];
+
+    return d;
   }
 }

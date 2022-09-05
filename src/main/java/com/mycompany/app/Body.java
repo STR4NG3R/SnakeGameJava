@@ -1,6 +1,6 @@
 package com.mycompany.app;
 
-public class Body {
+public class Body implements Cloneable {
   Point location;
   char action;
 
@@ -18,5 +18,11 @@ public class Body {
     if (this == obj)
       return true;
     return ((Body) obj).location.equals(location);
+  }
+
+  public Object clone() throws CloneNotSupportedException {
+    var b = (Body) super.clone();
+    b.location = (Point) location.clone();
+    return b;
   }
 }

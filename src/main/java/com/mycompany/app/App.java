@@ -17,7 +17,7 @@ public class App extends JFrame {
   App() throws InterruptedException {
     setLocationRelativeTo(null);
     Drawer d = new Drawer();
-    setSize(Drawer.WIDTH * 10, Drawer.HEIGHT * 10);
+    setSize(Drawer.COLS_N * 10, Drawer.ROWS_N * 10);
     addKeyListener(d);
     add(d);
     setVisible(true);

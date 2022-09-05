@@ -7,6 +7,7 @@ public class Node {
   public int f;
   public char action;
   public Node parent;
+  public Snake snake;
 
   Node(Point p, Node parent) {
     this.p = p;
@@ -19,6 +20,11 @@ public class Node {
   Node(Point p, Node parent, char action) {
     this(p, parent);
     this.action = action;
+  }
+
+  Node(Point p, Node parent, Snake snake) {
+    this(p, parent);
+    this.snake = snake;
   }
 
   @Override

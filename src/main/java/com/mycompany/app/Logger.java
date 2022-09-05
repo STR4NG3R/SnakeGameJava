@@ -6,13 +6,14 @@ package com.mycompany.app;
 public class Logger {
   static final boolean DEBUG = false;
 
-  static void log(String... args) {
-    if (DEBUG)
-      Logger.log(args);
+  static void log(Object... args) {
+    // if (DEBUG)
+      System.out.println(args);
   }
 
-  static void log(Object... args) {
-    if (DEBUG)
-      Logger.log(args);
+  static void lognr(Object... args) {
+    // if (DEBUG)
+      System.out.println(args);
   }
+
 }

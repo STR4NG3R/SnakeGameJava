@@ -12,6 +12,19 @@ console.log(testReverse('aabbb'))
 console.log(testReverse('a'))
 console.log(testReverse('abcdef'))
 
-const fact = (number) => number === 1 ? 1 : fact(number - 1) + number
+const fibonnaci = (number) => number <= 0 ? 0 : number <= 2 ? 1 : fibonnaci(number - 2) + fibonnaci(number - 1)
 
-console.log(fact(3))
+console.log(fibonnaci(9))
+
+const fibbo = (number) => {
+  if (number <= 0) return 0
+  let first = 0, second = 1;
+  while (--number) {
+    const value = first + second
+    first = second
+    second = value
+  }
+  return second
+}
+
+console.log(fibbo(3))

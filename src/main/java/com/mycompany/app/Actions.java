@@ -5,4 +5,5 @@ interface Actions {
   char DOWN = 'D';
   char LEFT = 'L';
   char RIGHT = 'R';
+  char UNKNOW = 'U';
 }

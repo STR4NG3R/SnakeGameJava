@@ -2,6 +2,7 @@ package com.mycompany.app;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.util.Random;
 
 public class Food {
   public Point point = new Point();
@@ -16,21 +17,28 @@ public class Food {
 
   public void print(Graphics g) {
     g.setColor(Color.RED);
-    g.fillOval(point.row * 10, point.col * 10, 11, 11);
+    g.fillRect(point.col * 10, point.row * 10, 11, 11);
   }
 
   int generateRandomCoord(int upperNumber) {
-    return (int) Math.floor(Math.random() * (upperNumber));
+    return new Random().nextInt(upperNumber);
   }
 
-  public void generateNewFoodCoord() {
-    int row = generateRandomCoord(10), col = generateRandomCoord(10);
-    boolean isSnake = snake.drawer.drawerState[row][col] == 'S';
-    if (isSnake) {
-      point.row = point.col = -1;
-    } else {
-      point.row = col;
-      point.col = row;
+  public void generateNewFoodCoord(Drawer drawer) {
+    for (;;) {
+      System.out.println("GENERATING FOOD");
+      // int row = generateRandomCoord(Drawer.ROWS_N), col =
+      // generateRandomCoord(Drawer.COLS_N);
+      int row = generateRandomCoord(5), col = generateRandomCoord(5);
+      if (drawer.itsOutsideMap(row, col))
+        continue;
+      boolean isSnake = snake.drawer.drawerState[row][col] == 'S';
+      point.row = row;
+      point.col = col;
+      if (!isSnake)
+        return;
     }
   }
+
+  // drawer.drawerState[row][col] = 'F';
 }
